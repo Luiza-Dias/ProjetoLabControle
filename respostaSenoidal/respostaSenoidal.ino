@@ -7,6 +7,7 @@
 #define ENC2 3
 #define N 10
 
+
 int pwm = 150; // PWM 55 - RPM 35
 int pos = 0;
 int idealPos = 300;
@@ -19,6 +20,8 @@ volatile int pos_i = 0;
 //Filtro media movel
 int vetorMedia[N];
 // inicializa o vetor com NULL
+
+float angle = 0;
 
 void setup() {
   //Definição dos pinos como saídas
@@ -43,10 +46,17 @@ void setup() {
 
 void loop() {
     
-//  if ((millis() - t0 >= 5000) && (pwm < 255)){
-//    pwm+=10;
-//    t0 = millis();
-//  }
+  if ((millis() - t0 >= 100)){
+    if (angle < 2*PI){
+       angle += (2*PI/100);
+    }
+    else{
+      angle = 0;
+    }
+   
+    pwm = 150* sin(angle);
+    t0 = millis();
+  }
   control();
   
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
@@ -59,7 +69,7 @@ void loop() {
   prevT = currT;
 
   Serial.println("Ideal: ");
-  Serial.println(returnRPM(pwm));
+  Serial.println(45 * pwm);
   //Serial.println(",");
   Serial.print("Real: ");
   Serial.println(vel1);
@@ -85,9 +95,19 @@ void readEncoder(){
   pos_i = pos_i + increment;
 }
 void control(){
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  analogWrite(ENA, pwm);
+  if (pwm > 0){
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+  }
+  else if (pwm < 0){
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+  }
+  if (pwm == 0){
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+  }
+  analogWrite(ENA, abs(pwm));
 
 }
 
