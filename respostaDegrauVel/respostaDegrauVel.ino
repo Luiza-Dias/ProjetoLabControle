@@ -5,9 +5,9 @@
 #define IN2 8
 #define ENC1 2
 #define ENC2 3
-#define N 10
+#define N 30
 
-int pwm = 150; // PWM 55 - RPM 35
+int pwm = 30; // PWM 55 - RPM 35
 int pos = 0;
 int idealPos = 300;
 unsigned long t0 = millis();
@@ -36,7 +36,7 @@ void setup() {
   for(int i = 0; i < N; i++){
     vetorMedia[i]  = NULL;
   }
-  attachInterrupt(digitalPinToInterrupt(ENC1), readEncoder, RISING);
+  attachInterrupt(digitalPinToInterrupt(ENC2), readEncoder, RISING);
   delay(1000);
   t0 = millis();
 }
@@ -47,6 +47,7 @@ void loop() {
 //    pwm+=10;
 //    t0 = millis();
 //  }
+
   control();
   
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
@@ -57,9 +58,9 @@ void loop() {
   float vel1 = (pos - posPrev)/deltaT;
   posPrev = pos;
   prevT = currT;
-
+//
   Serial.println("Ideal: ");
-  Serial.println(returnRPM(pwm));
+  Serial.println(300);
   //Serial.println(",");
   Serial.print("Real: ");
   Serial.println(vel1);
@@ -74,7 +75,7 @@ int returnRPM(int PWM){
 }
 
 void readEncoder(){
-  int b = digitalRead(ENC2);
+  int b = digitalRead(ENC1);
   int increment = 0;
   if (b >0){
     increment = 1;

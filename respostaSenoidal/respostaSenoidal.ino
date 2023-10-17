@@ -3,12 +3,12 @@
 #define ENA 10
 #define IN1 7
 #define IN2 8
-#define ENC1 2
-#define ENC2 3
+#define ENC1 3
+#define ENC2 2
 #define N 10
 
 
-int pwm = 150; // PWM 55 - RPM 35
+int pwm = 0; // PWM 55 - RPM 35
 int pos = 0;
 int idealPos = 300;
 unsigned long t0 = millis();
@@ -54,7 +54,7 @@ void loop() {
       angle = 0;
     }
    
-    pwm = 150* sin(angle);
+    pwm = 50* sin(angle);
     t0 = millis();
   }
   control();
