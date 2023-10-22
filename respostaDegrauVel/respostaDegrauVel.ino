@@ -3,11 +3,11 @@
 #define ENA 10
 #define IN1 7
 #define IN2 8
-#define ENC1 2
-#define ENC2 3
-#define N 30
+#define ENC1 3
+#define ENC2 2
+#define N 10
 
-int pwm = 30; // PWM 55 - RPM 35
+int pwm = 50; // PWM 55 - RPM 35
 int pos = 0;
 int idealPos = 300;
 unsigned long t0 = millis();
@@ -19,6 +19,8 @@ volatile int pos_i = 0;
 //Filtro media movel
 int vetorMedia[N];
 // inicializa o vetor com NULL
+
+float velocidade = 83.78;
 
 void setup() {
   //Definição dos pinos como saídas
@@ -37,8 +39,8 @@ void setup() {
     vetorMedia[i]  = NULL;
   }
   attachInterrupt(digitalPinToInterrupt(ENC2), readEncoder, RISING);
-  delay(1000);
-  t0 = millis();
+  delay(3000);
+  t0 = micros();
 }
 
 void loop() {
@@ -58,16 +60,19 @@ void loop() {
   float vel1 = (pos - posPrev)/deltaT;
   posPrev = pos;
   prevT = currT;
-//
-  Serial.println("Ideal: ");
-  Serial.println(300);
-  //Serial.println(",");
+  
+  Serial.println("ideal: ");
+  Serial.println(velocidade);
+
+//  Serial.print("time: ");
+//  Serial.println(micros() - t0);
+//  Serial.println(",");
   Serial.print("Real: ");
-  Serial.println(vel1);
+//  Serial.println(vel1);
+//  Serial.println(",");
 //  Serial.print("Media: ");
-//  Serial.println(media_movel(vel1));
-
-
+  Serial.println((media_movel(vel1)/60)*2*PI);
+  
 }
 
 int returnRPM(int PWM){

@@ -3,8 +3,8 @@
 #define ENA 10
 #define IN1 7
 #define IN2 8
-#define ENC1 3
-#define ENC2 2
+#define ENC1 2
+#define ENC2 3
 #define N 10
 
 
@@ -16,7 +16,7 @@ unsigned long t0 = millis();
 long prevT= 0;
 int posPrev = 0;
 volatile int pos_i = 0;
-
+long tempoooooo;
 //Filtro media movel
 int vetorMedia[N];
 // inicializa o vetor com NULL
@@ -42,11 +42,12 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(ENC1), readEncoder, RISING);
   delay(1000);
   t0 = millis();
+  tempoooooo = micros();
 }
 
 void loop() {
     
-  if ((millis() - t0 >= 100)){
+  if ((millis() - t0 >= 50)){
     if (angle < 2*PI){
        angle += (2*PI/100);
     }
@@ -68,13 +69,15 @@ void loop() {
   posPrev = pos;
   prevT = currT;
 
-  Serial.println("Ideal: ");
-  Serial.println(45 * pwm);
+//  Serial.println("Ideal: ");
+//  Serial.println(pwm * 1.7);
+  Serial.print("time: ");
+  Serial.println(micros() - tempoooooo);
   //Serial.println(",");
   Serial.print("Real: ");
-  Serial.println(vel1);
+//  Serial.println((vel1/60)*2*PI);
 //  Serial.print("Media: ");
-//  Serial.println(media_movel(vel1));
+  Serial.println((media_movel(vel1)/60)*2*PI);
 
 
 }
