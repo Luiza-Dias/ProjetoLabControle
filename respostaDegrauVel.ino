@@ -22,6 +22,13 @@ int vetorMedia[N];
 
 float velocidade = 62;
 
+//filtro passa baixas
+//float v1Filt = 0;
+//float v1Prev = 0;
+//float v2Filt = 0;
+//float v2Prev = 0;
+
+
 void setup() {
   //Definição dos pinos como saídas
   pinMode(ENA, OUTPUT);
@@ -62,6 +69,10 @@ void loop() {
   posPrev = pos;
   prevT = currT;
   
+//filtro passa-baixas
+//  v1Filt = 0.854*v1Filt + 0.0728*vel1 + 0.0728*v1Prev;
+//  v1Prev = vel1;
+  
   Serial.println("ideal: ");
   Serial.println(velocidade);
 
@@ -74,6 +85,8 @@ void loop() {
 //  Serial.print("Media: ");
   Serial.println((media_movel(vel1)*0.01666666)*2*PI);
 //    Serial.println((vel1*0.01666666)*2*PI);
+//filtro passa-baixas
+//  Serial.println(v1Filt)
   
 }
 
