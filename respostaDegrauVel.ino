@@ -30,7 +30,9 @@ float velocidade = 62;
 
 //Controlador PID
 float kp = 20;
+float ki = 1;
 float e;
+float eIntegral = 0;
 float u;
 int dir = 1;
 
@@ -63,14 +65,6 @@ void loop() {
     velocidade = 87;
     //t0 = millis();
   }
-  //Controlador PID
-  e = vRef - vel1;
-  u = kp * e;
-  dir = u < 0 ? -1 : 1; 
-  pwm = (int)fabs(u);
-  pwm = pwm > 255 ? 255 : pwm;
-  
-  control(pwm, dir);
   
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
     pos = pos_i;
@@ -80,6 +74,16 @@ void loop() {
   float vel1 = (pos - posPrev)/deltaT;
   posPrev = pos;
   prevT = currT;
+
+  //Controlador PID
+  e = vRef - vel1;
+  eIntegral = eIntegral + e*deltaT;
+  u = kp * e + ki * eIntegral;
+  dir = u < 0 ? -1 : 1; 
+  pwm = (int)fabs(u);
+  pwm = pwm > 255 ? 255 : pwm;
+  
+  control(pwm, dir);
   
 //filtro passa-baixas
 //  v1Filt = 0.854*v1Filt + 0.0728*vel1 + 0.0728*v1Prev;
