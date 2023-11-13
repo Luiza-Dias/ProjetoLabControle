@@ -28,6 +28,12 @@ float velocidade = 62;
 //float v2Filt = 0;
 //float v2Prev = 0;
 
+//Controlador PID
+float kp = 20;
+float e;
+float u;
+int dir = 1;
+
 
 void setup() {
   //Definição dos pinos como saídas
@@ -57,8 +63,14 @@ void loop() {
     velocidade = 87;
     //t0 = millis();
   }
-
-  control();
+  //Controlador PID
+  e = vRef - vel1;
+  u = kp * e;
+  dir = u < 0 ? -1 : 1; 
+  pwm = (int)fabs(u);
+  pwm = pwm > 255 ? 255 : pwm;
+  
+  control(pwm, dir);
   
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
     pos = pos_i;
@@ -105,10 +117,16 @@ void readEncoder(){
   }
   pos_i = pos_i + increment;
 }
-void control(){
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  analogWrite(ENA, pwm);
+void control(int Pwm, int d){
+  if(d > 0){
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+  }
+  else{
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+  }
+  analogWrite(ENA, Pwm);
 
 }
 
