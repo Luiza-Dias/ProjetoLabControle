@@ -3,11 +3,10 @@
 #define ENA 10
 #define IN1 7
 #define IN2 8
-#define ENC1 3
-#define ENC2 2
-#define N 10
+#define ENC1 2
+#define ENC2 3
 
-int pwm = 50; // PWM 55 - RPM 35
+int pwm = 70; // 150 tá baum
 int pos = 0;
 int idealPos = 300;
 unsigned long t0 = millis();
@@ -15,12 +14,6 @@ unsigned long t0 = millis();
 long prevT= 0;
 int posPrev = 0;
 volatile int pos_i = 0;
-
-//Filtro media movel
-int vetorMedia[N];
-// inicializa o vetor com NULL
-
-float velocidade = 83.78;
 
 void setup() {
   //Definição dos pinos como saídas
@@ -35,21 +28,27 @@ void setup() {
   digitalWrite(IN2, LOW);
 
   Serial.begin(9600);
-  for(int i = 0; i < N; i++){
-    vetorMedia[i]  = NULL;
-  }
-  attachInterrupt(digitalPinToInterrupt(ENC2), readEncoder, RISING);
-  delay(3000);
-  t0 = micros();
+  attachInterrupt(digitalPinToInterrupt(ENC1), readEncoder, RISING);
+  delay(1000);
+  t0 = millis();
 }
 
 void loop() {
-    
-//  if ((millis() - t0 >= 5000) && (pwm < 255)){
-//    pwm+=10;
-//    t0 = millis();
+  
+//  if (Serial.available()>0){
+//  
+//    idealPos = Serial.readString().toInt();
 //  }
-
+//  Serial.println("idealPos: ");
+//  Serial.println(idealPos);
+//  //Serial.println(",");
+//  Serial.print("pos: ");
+//  Serial.println(pos);
+  
+  if ((millis() - t0 >= 5000) && (pwm < 255)){
+    pwm+=10;
+    t0 = millis();
+  }
   control();
   
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE){
@@ -60,19 +59,13 @@ void loop() {
   float vel1 = (pos - posPrev)/deltaT;
   posPrev = pos;
   prevT = currT;
-  
-  Serial.println("ideal: ");
-  Serial.println(velocidade);
 
-//  Serial.print("time: ");
-//  Serial.println(micros() - t0);
-//  Serial.println(",");
+  Serial.println("Ideal: ");
+  Serial.println(returnRPM(pwm));
+  //Serial.println(",");
   Serial.print("Real: ");
-//  Serial.println(vel1);
-//  Serial.println(",");
-//  Serial.print("Media: ");
-  Serial.println((media_movel(vel1)/60)*2*PI);
-  
+  Serial.println(vel1);
+
 }
 
 int returnRPM(int PWM){
@@ -80,7 +73,7 @@ int returnRPM(int PWM){
 }
 
 void readEncoder(){
-  int b = digitalRead(ENC1);
+  int b = digitalRead(ENC2);
   int increment = 0;
   if (b >0){
     increment = 1;
@@ -94,24 +87,32 @@ void control(){
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
   analogWrite(ENA, pwm);
-
+//  Serial.print("PWM: ");
+//  Serial.println(pwm);
+//  if(pos < idealPos){
+//    //pwm = 255 * abs(pos - idealPos)/idealPos;
+//    digitalWrite(IN1, HIGH);
+//    digitalWrite(IN2, LOW);
+//  }
+//  else if(pos > idealPos){
+//    //pwm = 55;
+//    //pwm = 255 * abs(pos - idealPos)/idealPos;
+//    digitalWrite(IN1, LOW);
+//    digitalWrite(IN2, HIGH);
+//  }
+//  else{
+//  //pwm = 0;
+//  digitalWrite(IN1, LOW);
+//  digitalWrite(IN2, LOW);
+//  }
+//  analogWrite(ENA, pwm);
 }
 
-int media_movel(int newValue){
-  int soma = 0;
-  int media;
-  int contNULL = 0;
-  for(int i = 0; i < N - 1; i++){
-    vetorMedia[i] = vetorMedia[i+1];
-    if(vetorMedia[i+1] != NULL){
-      soma += vetorMedia[i+1];
-    }
-    else{
-      contNULL++;
-    }
+void voltarAoInicio(){
+  idealPos = 0;
+  while(pos!=0){
+    control();
   }
-  vetorMedia[N-1] = newValue;
-  soma += newValue;
-  media = int(soma/(N - contNULL));
-  return media;
+  //RESET
+  delay(60000);
 }
